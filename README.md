@@ -7,9 +7,10 @@ Reference Word templates for the [Foxit DocGen API](https://developer-api.foxit.
 | File | Scenario | Tokens | Use it for |
 |---|---|---|---|
 | [`invoice_simple.docx`](invoice_simple.docx) | Invoice header only, scalar values | `{{ companyName }}`, `{{ invoiceNumber }}`, `{{ invoiceDate \@ MM/dd/yyyy }}`, `{{ totalDue \# "$#,##0.00" }}` | Smoke-testing the auth + request-response loop with the smallest possible payload |
-| [`invoice_table.docx`](invoice_table.docx) | Full invoice with line items and a computed subtotal | All of the above, plus `{{TableStart:lineItems}}` / `{{TableEnd:lineItems}}` loop, `{{ROW_NUMBER}}`, `{{=SUM(ABOVE) \# "$#,##0.00"}}` | Validating dynamic table rendering, currency formatting on derived fields, and aggregate functions |
+| [`invoice_table.docx`](invoice_table.docx) | Full invoice with line items and a computed subtotal (camelCase tokens) | All of the above, plus `{{TableStart:lineItems}}` / `{{TableEnd:lineItems}}` loop, `{{ROW_NUMBER}}`, `{{=SUM(ABOVE) \# "$#,##0.00"}}` | Validating dynamic table rendering, currency formatting on derived fields, and aggregate functions |
+| [`invoice_full.docx`](invoice_full.docx) | Full invoice with snake_case tokens, due date, subtotal / tax / total footer | `{{ customer_name }}`, `{{ invoice_number }}`, `{{ invoice_date }}`, `{{ due_date }}`, `{{TableStart:line_items}}` / `{{TableEnd:line_items}}` loop with `{{ROW_NUMBER}}` / `{{description}}` / `{{qty}}` / `{{unit_price \# "$#,##0.00"}}` / `{{total \# "$#,##0.00"}}`, plus `{{subtotal}}`, `{{tax_rate}}`, `{{tax_amount}}`, `{{total_due}}` (each with the currency picture string where appropriate) | Drop-in template for the `article1-client.md` tutorial, where the payload uses snake_case keys |
 
-A pre-rendered PDF for each template (`invoice_simple_test.pdf`, `invoice_table_test.pdf`) is included so you can confirm what the API output should look like before running your own request.
+A pre-rendered PDF for each template (`invoice_simple_test.pdf`, `invoice_table_test.pdf`, `invoice_full_test.pdf`) is included so you can confirm what the API output should look like before running your own request.
 
 ## Quick start
 
