@@ -1,14 +1,14 @@
 """
-Build the Word templates referenced by article1-writing.md / article1-client.md
-and verify them against the Foxit DocGen API.
+Build the Word templates referenced by article1-writing.md / article1-client.md /
+article2-batch3-writing.md and verify each one against the Foxit DocGen API.
 
 Outputs:
-  - invoice_simple.docx   (scalar tokens only: welcome / first-run friendly)
-  - invoice_table.docx    (full invoice with line-items loop, camelCase tokens)
-  - invoice_full.docx     (snake_case tokens, matches article1-client.md payload
-                           exactly: customer_name / invoice_number / invoice_date /
-                           due_date / line_items / subtotal / tax_rate / tax_amount /
-                           total_due)
+  - invoice_simple.docx          (scalar tokens only, first-run friendly)
+  - invoice_table.docx           (full invoice with line-items loop, camelCase tokens)
+  - invoice_full.docx            (snake_case invoice, matches article1-client.md)
+  - contract_standard.docx       (two-party MSA, fixed term, batch3 article2)
+  - contract_auto_renewal.docx   (two-party MSA, auto-renewing, batch3 article2)
+  - compliance_attestation.docx  (quarterly vendor risk attestation, batch3 article2)
   - *_test.pdf rendered proof for each template
 """
 import base64
@@ -223,6 +223,250 @@ def build_invoice_full(path: Path) -> None:
     doc.save(path)
 
 
+def build_contract_standard(path: Path) -> None:
+    """Two-party master services agreement, fixed-term, batch3 article2."""
+    doc = Document()
+
+    _styled_heading(doc, "MASTER SERVICES AGREEMENT", size=20)
+    doc.add_paragraph(
+        "This Master Services Agreement (the Agreement) is entered into as of "
+        "{{ effective_date }} by and between the parties listed below."
+    )
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Parties", size=14)
+
+    p = doc.add_paragraph()
+    p.add_run("Party A: ").bold = True
+    p.add_run("{{ party_a_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Address: ").bold = True
+    p.add_run("{{ party_a_address_line1 }}, {{ party_a_address_city }}, {{ party_a_address_state }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Signatory: ").bold = True
+    p.add_run("{{ party_a_signatory_name }}, {{ party_a_signatory_title }}")
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Party B: ").bold = True
+    p.add_run("{{ party_b_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Address: ").bold = True
+    p.add_run("{{ party_b_address_line1 }}, {{ party_b_address_city }}, {{ party_b_address_state }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Signatory: ").bold = True
+    p.add_run("{{ party_b_signatory_name }}, {{ party_b_signatory_title }}")
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Term and Payment", size=14)
+
+    p = doc.add_paragraph()
+    p.add_run("Effective Date: ").bold = True
+    p.add_run("{{ effective_date }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Term: ").bold = True
+    p.add_run("{{ term_months }} months (fixed term, no automatic renewal)")
+
+    p = doc.add_paragraph()
+    p.add_run("Contract Value: ").bold = True
+    p.add_run('{{ contract_value \\# "$#,##0.00" }}')
+
+    p = doc.add_paragraph()
+    p.add_run("Payment Schedule: ").bold = True
+    p.add_run("{{ payment_schedule }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Governing Law: ").bold = True
+    p.add_run("{{ governing_law }}")
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Termination", size=14)
+    doc.add_paragraph(
+        "This Agreement expires at the end of the term stated above. The parties may "
+        "extend the term only by signing a new written agreement."
+    )
+
+    doc.add_paragraph()
+    _styled_heading(doc, "Signatures", size=14)
+    doc.add_paragraph("Party A: ________________________________  Date: __________")
+    doc.add_paragraph("Party B: ________________________________  Date: __________")
+
+    doc.save(path)
+
+
+def build_contract_auto_renewal(path: Path) -> None:
+    """Two-party master services agreement, auto-renewing, batch3 article2."""
+    doc = Document()
+
+    _styled_heading(doc, "MASTER SERVICES AGREEMENT (Auto-Renewing)", size=20)
+    doc.add_paragraph(
+        "This Master Services Agreement (the Agreement) is entered into as of "
+        "{{ effective_date }} by and between the parties listed below."
+    )
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Parties", size=14)
+
+    p = doc.add_paragraph()
+    p.add_run("Party A: ").bold = True
+    p.add_run("{{ party_a_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Address: ").bold = True
+    p.add_run("{{ party_a_address_line1 }}, {{ party_a_address_city }}, {{ party_a_address_state }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Signatory: ").bold = True
+    p.add_run("{{ party_a_signatory_name }}, {{ party_a_signatory_title }}")
+
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Party B: ").bold = True
+    p.add_run("{{ party_b_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Address: ").bold = True
+    p.add_run("{{ party_b_address_line1 }}, {{ party_b_address_city }}, {{ party_b_address_state }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Signatory: ").bold = True
+    p.add_run("{{ party_b_signatory_name }}, {{ party_b_signatory_title }}")
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Term and Payment", size=14)
+
+    p = doc.add_paragraph()
+    p.add_run("Effective Date: ").bold = True
+    p.add_run("{{ effective_date }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Initial Term: ").bold = True
+    p.add_run("{{ term_months }} months")
+
+    p = doc.add_paragraph()
+    p.add_run("Contract Value: ").bold = True
+    p.add_run('{{ contract_value \\# "$#,##0.00" }}')
+
+    p = doc.add_paragraph()
+    p.add_run("Payment Schedule: ").bold = True
+    p.add_run("{{ payment_schedule }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Governing Law: ").bold = True
+    p.add_run("{{ governing_law }}")
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Auto-Renewal", size=14)
+    doc.add_paragraph(
+        "This Agreement renews automatically for successive terms equal in length to the "
+        "Initial Term unless either party provides written notice of non-renewal at least "
+        "thirty (30) days before the end of the then-current term. Renewal terms inherit "
+        "all provisions of this Agreement unchanged."
+    )
+
+    doc.add_paragraph()
+    _styled_heading(doc, "Signatures", size=14)
+    doc.add_paragraph("Party A: ________________________________  Date: __________")
+    doc.add_paragraph("Party B: ________________________________  Date: __________")
+
+    doc.save(path)
+
+
+def build_compliance_attestation(path: Path) -> None:
+    """Quarterly vendor risk attestation report, batch3 article2."""
+    doc = Document()
+
+    _styled_heading(doc, "QUARTERLY VENDOR RISK ATTESTATION", size=20)
+    doc.add_paragraph("Foxit DocGen API Sample Template")
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Organization: ").bold = True
+    p.add_run("{{ organizationName }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Attestation Period: ").bold = True
+    p.add_run("{{ attestationPeriod }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Report Date: ").bold = True
+    p.add_run("{{ reportDate }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Prepared By: ").bold = True
+    p.add_run("{{ preparedBy }}, {{ preparedByTitle }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Policy Version: ").bold = True
+    p.add_run("{{ policyVersion }}")
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Controls Reviewed", size=14)
+
+    table = doc.add_table(rows=2, cols=5)
+    table.style = "Light Grid Accent 1"
+    table.autofit = True
+
+    headers = ["#", "Control ID", "Control Name", "Status", "Evidence"]
+    for idx, text in enumerate(headers):
+        cell = table.rows[0].cells[idx]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(text)
+        run.bold = True
+
+    loop_row = table.rows[1].cells
+    loop_row[0].text = "{{TableStart:controls}}{{ROW_NUMBER}}"
+    loop_row[1].text = "{{control_id}}"
+    loop_row[2].text = "{{control_name}}"
+    loop_row[3].text = "{{status}}"
+    loop_row[4].text = "{{evidenceLink}}{{TableEnd:controls}}"
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Summary", size=14)
+
+    p = doc.add_paragraph()
+    p.add_run("Total Controls Reviewed: ").bold = True
+    p.add_run("{{ totalControls }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Compliant: ").bold = True
+    p.add_run("{{ compliantCount }}")
+
+    p = doc.add_paragraph()
+    p.add_run("In Remediation: ").bold = True
+    p.add_run("{{ remediationCount }}")
+
+    doc.add_paragraph()
+    _styled_heading(doc, "Approval", size=14)
+    doc.add_paragraph(
+        "I attest that the information presented in this report is accurate to the best "
+        "of my knowledge and reflects the organization's compliance posture as of the "
+        "report date."
+    )
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Approver: ").bold = True
+    p.add_run("{{ approverName }}, {{ approverTitle }}")
+
+    doc.add_paragraph("Signature: ________________________________  Date: __________")
+
+    doc.save(path)
+
+
 def render_via_api(template_path: Path, payload: dict, output_pdf: Path) -> dict:
     with template_path.open("rb") as fh:
         template_b64 = base64.b64encode(fh.read()).decode("utf-8")
@@ -313,21 +557,88 @@ FULL_PAYLOAD = {
 }
 
 
+CONTRACT_STANDARD_PAYLOAD = {
+    "party_a_name": "Meridian Consulting LLC",
+    "party_a_address_line1": "1200 Tech Parkway, Suite 400",
+    "party_a_address_city": "Austin",
+    "party_a_address_state": "TX",
+    "party_a_signatory_name": "Jordan Lee",
+    "party_a_signatory_title": "Chief Executive Officer",
+    "party_b_name": "Acme Corporation",
+    "party_b_address_line1": "400 Industrial Way",
+    "party_b_address_city": "Denver",
+    "party_b_address_state": "CO",
+    "party_b_signatory_name": "Alex Patel",
+    "party_b_signatory_title": "VP Procurement",
+    "effective_date": "2024-02-01",
+    "term_months": 12,
+    "governing_law": "Texas",
+    "contract_value": 39600.00,
+    "payment_schedule": "Monthly",
+}
+
+CONTRACT_AUTO_RENEWAL_PAYLOAD = dict(CONTRACT_STANDARD_PAYLOAD)
+
+COMPLIANCE_PAYLOAD = {
+    "organizationName": "Acme Corporation",
+    "attestationPeriod": "Q1 2024",
+    "reportDate": "2024-04-01",
+    "preparedBy": "Compliance Team",
+    "preparedByTitle": "Information Security Manager",
+    "policyVersion": "v3.2",
+    "controls": [
+        {
+            "control_id": "AC-01",
+            "control_name": "Access Control Policy",
+            "status": "Compliant",
+            "evidenceLink": "https://docs.acme.com/evidence/AC-01",
+        },
+        {
+            "control_id": "SC-28",
+            "control_name": "Protection of Information at Rest",
+            "status": "Compliant",
+            "evidenceLink": "https://docs.acme.com/evidence/SC-28",
+        },
+        {
+            "control_id": "IR-04",
+            "control_name": "Incident Handling",
+            "status": "In Remediation",
+            "evidenceLink": "https://docs.acme.com/evidence/IR-04",
+        },
+    ],
+    "totalControls": 3,
+    "compliantCount": 2,
+    "remediationCount": 1,
+    "approverName": "Dana Okonkwo",
+    "approverTitle": "Chief Information Security Officer",
+}
+
+
 def main() -> int:
     simple_docx = HERE / "invoice_simple.docx"
     table_docx = HERE / "invoice_table.docx"
     full_docx = HERE / "invoice_full.docx"
+    contract_std_docx = HERE / "contract_standard.docx"
+    contract_auto_docx = HERE / "contract_auto_renewal.docx"
+    compliance_docx = HERE / "compliance_attestation.docx"
+
     simple_pdf = HERE / "invoice_simple_test.pdf"
     table_pdf = HERE / "invoice_table_test.pdf"
     full_pdf = HERE / "invoice_full_test.pdf"
+    contract_std_pdf = HERE / "contract_standard_test.pdf"
+    contract_auto_pdf = HERE / "contract_auto_renewal_test.pdf"
+    compliance_pdf = HERE / "compliance_attestation_test.pdf"
 
     print("Building templates...")
     build_invoice_simple(simple_docx)
     build_invoice_table(table_docx)
     build_invoice_full(full_docx)
-    print(f"  {simple_docx.name} ({simple_docx.stat().st_size:,} bytes)")
-    print(f"  {table_docx.name} ({table_docx.stat().st_size:,} bytes)")
-    print(f"  {full_docx.name} ({full_docx.stat().st_size:,} bytes)")
+    build_contract_standard(contract_std_docx)
+    build_contract_auto_renewal(contract_auto_docx)
+    build_compliance_attestation(compliance_docx)
+    for f in (simple_docx, table_docx, full_docx,
+              contract_std_docx, contract_auto_docx, compliance_docx):
+        print(f"  {f.name} ({f.stat().st_size:,} bytes)")
 
     print("\nRendering invoice_simple.docx via Foxit DocGen API...")
     render_via_api(simple_docx, SIMPLE_PAYLOAD, simple_pdf)
@@ -337,6 +648,15 @@ def main() -> int:
 
     print("\nRendering invoice_full.docx via Foxit DocGen API...")
     render_via_api(full_docx, FULL_PAYLOAD, full_pdf)
+
+    print("\nRendering contract_standard.docx via Foxit DocGen API...")
+    render_via_api(contract_std_docx, CONTRACT_STANDARD_PAYLOAD, contract_std_pdf)
+
+    print("\nRendering contract_auto_renewal.docx via Foxit DocGen API...")
+    render_via_api(contract_auto_docx, CONTRACT_AUTO_RENEWAL_PAYLOAD, contract_auto_pdf)
+
+    print("\nRendering compliance_attestation.docx via Foxit DocGen API...")
+    render_via_api(compliance_docx, COMPLIANCE_PAYLOAD, compliance_pdf)
 
     print("\nAll templates rendered successfully.")
     return 0
