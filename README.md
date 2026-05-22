@@ -9,8 +9,13 @@ Reference Word templates for the [Foxit DocGen API](https://developer-api.foxit.
 | [`invoice_simple.docx`](invoice_simple.docx) | Invoice header only, scalar values | `{{ companyName }}`, `{{ invoiceNumber }}`, `{{ invoiceDate \@ MM/dd/yyyy }}`, `{{ totalDue \# "$#,##0.00" }}` | Smoke-testing the auth + request-response loop with the smallest possible payload |
 | [`invoice_table.docx`](invoice_table.docx) | Full invoice with line items and a computed subtotal (camelCase tokens) | All of the above, plus `{{TableStart:lineItems}}` / `{{TableEnd:lineItems}}` loop, `{{ROW_NUMBER}}`, `{{=SUM(ABOVE) \# "$#,##0.00"}}` | Validating dynamic table rendering, currency formatting on derived fields, and aggregate functions |
 | [`invoice_full.docx`](invoice_full.docx) | Full invoice with snake_case tokens, due date, subtotal / tax / total footer | `{{ customer_name }}`, `{{ invoice_number }}`, `{{ invoice_date }}`, `{{ due_date }}`, `{{TableStart:line_items}}` / `{{TableEnd:line_items}}` loop with `{{ROW_NUMBER}}` / `{{description}}` / `{{qty}}` / `{{unit_price \# "$#,##0.00"}}` / `{{total \# "$#,##0.00"}}`, plus `{{subtotal}}`, `{{tax_rate}}`, `{{tax_amount}}`, `{{total_due}}` (each with the currency picture string where appropriate) | Drop-in template for the `article1-client.md` tutorial, where the payload uses snake_case keys |
+| [`contract_standard.docx`](contract_standard.docx) | Two-party master services agreement, fixed term | `{{ party_a_name }}`, `{{ party_b_name }}`, `{{ effective_date }}`, `{{ term_months }}`, `{{ contract_value \# "$#,##0.00" }}`, plus address/signatory/governing-law tokens | Drop-in template for the batch3 article2 contracts tutorial |
+| [`contract_auto_renewal.docx`](contract_auto_renewal.docx) | Two-party MSA with auto-renewal clause | Same token set as `contract_standard.docx` | Same article, auto-renewal variant |
+| [`compliance_attestation.docx`](compliance_attestation.docx) | Quarterly vendor risk attestation | `{{ organizationName }}`, `{{ attestationPeriod }}`, `{{ reportDate }}`, `{{TableStart:controls}}` / `{{TableEnd:controls}}` loop with `{{ control_id }}` / `{{ control_name }}` / `{{ status }}` / `{{ evidenceLink }}`, plus summary counts and approver fields | Compliance reporting tutorial |
+| [`quarterly_statement.docx`](quarterly_statement.docx) | Financial portfolio quarterly statement | `{{ client_name }}`, `{{ account_number }}`, `{{ statement_period }}`, `{{ portfolio_value }}`, `{{TableStart:holdings}}` / `{{TableEnd:holdings}}` loop with `{{ symbol }}` / `{{ quantity }}` / `{{ marketValue }}` | Drop-in template for the batch3 article3 financial-services pipeline tutorial |
+| [`account_agreement.pdf`](account_agreement.pdf) | Single-page PDF with embedded eSign Text Tag tokens | Literal text `${signfield:1:y:____}`, `${datefield:1:y::____}`, `${signfield:2:y:____}`, `${datefield:2:n::____}`, `${i:2:n}` | Drop-in input for the eSign `/folders/createfolder` endpoint with `processTextTags: true`; used by the batch3 article3 onboarding flow. Built with reportlab, not python-docx. |
 
-A pre-rendered PDF for each template (`invoice_simple_test.pdf`, `invoice_table_test.pdf`, `invoice_full_test.pdf`) is included so you can confirm what the API output should look like before running your own request.
+A pre-rendered PDF for each Word template (`invoice_simple_test.pdf`, `invoice_table_test.pdf`, `invoice_full_test.pdf`, `contract_standard_test.pdf`, `contract_auto_renewal_test.pdf`, `compliance_attestation_test.pdf`, `quarterly_statement_test.pdf`) is included so you can confirm what the API output should look like before running your own request. `account_agreement.pdf` is the source artifact itself, consumed directly by the eSign API.
 
 ## Quick start
 
@@ -24,7 +29,7 @@ export CLIENT_ID="your_client_id"
 export CLIENT_SECRET="your_client_secret"
 
 # Install dependencies and run the round-trip test
-pip install python-docx requests pypdf
+pip install python-docx requests pypdf reportlab
 python build_templates.py
 ```
 

@@ -1,6 +1,7 @@
 """
 Build the Word templates referenced by article1-writing.md / article1-client.md /
-article2-batch3-writing.md and verify each one against the Foxit DocGen API.
+article2-batch3-writing.md / article3-writing-batch3.md and verify each one
+against the Foxit DocGen API.
 
 Outputs:
   - invoice_simple.docx          (scalar tokens only, first-run friendly)
@@ -9,7 +10,12 @@ Outputs:
   - contract_standard.docx       (two-party MSA, fixed term, batch3 article2)
   - contract_auto_renewal.docx   (two-party MSA, auto-renewing, batch3 article2)
   - compliance_attestation.docx  (quarterly vendor risk attestation, batch3 article2)
-  - *_test.pdf rendered proof for each template
+  - quarterly_statement.docx     (financial portfolio statement, batch3 article3)
+  - account_agreement.pdf        (PDF with eSign Text Tag tokens, batch3 article3)
+  - *_test.pdf rendered proof for each Word template
+
+Extra dependency for account_agreement.pdf: reportlab
+  pip install reportlab
 """
 import base64
 import os
@@ -467,6 +473,152 @@ def build_compliance_attestation(path: Path) -> None:
     doc.save(path)
 
 
+def build_quarterly_statement(path: Path) -> None:
+    """Financial quarterly portfolio statement, batch3 article3.
+
+    Uses snake_case scalar tokens for client metadata and a {{TableStart:holdings}}
+    loop for the portfolio positions table. Article 3 payload renders the dollar
+    amounts as already-formatted strings, so the template does not apply numeric
+    format specifiers; values pass through verbatim.
+    """
+    doc = Document()
+
+    _styled_heading(doc, "QUARTERLY PORTFOLIO STATEMENT", size=20)
+    doc.add_paragraph("Confidential. Prepared for the named account holder only.")
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Client Name: ").bold = True
+    p.add_run("{{ client_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Account Number: ").bold = True
+    p.add_run("{{ account_number }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Statement Period: ").bold = True
+    p.add_run("{{ statement_period }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Total Portfolio Value: ").bold = True
+    run = p.add_run("{{ portfolio_value }}")
+    run.bold = True
+
+    doc.add_paragraph()
+
+    _styled_heading(doc, "Holdings", size=14)
+
+    # Header row + loop row carrying TableStart/TableEnd in the same row,
+    # matching the pattern proven by invoice_table.docx.
+    table = doc.add_table(rows=2, cols=4)
+    table.style = "Light Grid Accent 1"
+    table.autofit = True
+
+    headers = ["#", "Symbol", "Quantity", "Market Value"]
+    for idx, text in enumerate(headers):
+        cell = table.rows[0].cells[idx]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(text)
+        run.bold = True
+
+    loop_row = table.rows[1].cells
+    loop_row[0].text = "{{TableStart:holdings}}{{ROW_NUMBER}}"
+    loop_row[1].text = "{{symbol}}"
+    loop_row[2].text = "{{quantity}}"
+    loop_row[3].text = "{{marketValue}}{{TableEnd:holdings}}"
+
+    doc.add_paragraph()
+    doc.add_paragraph(
+        "Market values are stated as of the statement period close. Past performance "
+        "is not indicative of future results. Contact your advisor with any questions."
+    )
+
+    doc.save(path)
+
+
+def build_account_agreement_pdf(path: Path) -> None:
+    """Single-page PDF with eSign Text Tag tokens, batch3 article3.
+
+    The Foxit eSign API parses dollar-brace tokens directly out of the PDF text
+    layer when processTextTags is true on the createfolder call. We render
+    those tokens as literal characters; eSign converts them into form fields
+    on upload.
+    """
+    # Import locally so the broader build doesn't require reportlab unless
+    # this builder is actually invoked.
+    from reportlab.lib.pagesizes import LETTER
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.units import inch
+
+    c = canvas.Canvas(str(path), pagesize=LETTER)
+    width, height = LETTER
+
+    c.setFont("Helvetica-Bold", 18)
+    c.drawString(1 * inch, height - 1 * inch, "Account Opening Agreement")
+
+    c.setFont("Helvetica", 10)
+    body_y = height - 1.5 * inch
+    body_paragraphs = [
+        "This Account Opening Agreement (the Agreement) governs the relationship "
+        "between the client (Party 1) and the institutional sponsor (Party 2). By "
+        "signing below, Party 1 confirms the accuracy of the information provided "
+        "during onboarding and authorises the sponsor to open and maintain a "
+        "brokerage account in their name.",
+        "",
+        "Party 2 represents and warrants that all required Know Your Customer and "
+        "Anti Money Laundering checks have been completed in accordance with applicable "
+        "regulatory requirements. Either party may terminate this Agreement with "
+        "30 days written notice; account closure procedures are governed by the "
+        "standard custody terms incorporated by reference.",
+    ]
+    text = c.beginText(1 * inch, body_y)
+    text.setFont("Helvetica", 10)
+    text.setLeading(14)
+    for paragraph in body_paragraphs:
+        for line in _wrap_lines(paragraph, max_chars=95):
+            text.textLine(line)
+    c.drawText(text)
+
+    # Signing blocks. The literal token strings below are what the eSign API
+    # parses when processTextTags is enabled on the createfolder call.
+    signing_y = 3.2 * inch
+
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(1 * inch, signing_y, "Party 1 (Client)")
+    c.setFont("Helvetica", 10)
+    c.drawString(1 * inch, signing_y - 0.35 * inch, "Signature: ${signfield:1:y:____}")
+    c.drawString(1 * inch, signing_y - 0.70 * inch, "Date: ${datefield:1:y::____}")
+
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(1 * inch, signing_y - 1.30 * inch, "Party 2 (Sponsor)")
+    c.setFont("Helvetica", 10)
+    c.drawString(1 * inch, signing_y - 1.65 * inch, "Signature: ${signfield:2:y:____}")
+    c.drawString(1 * inch, signing_y - 2.00 * inch, "Date: ${datefield:2:n::____}")
+    c.drawString(1 * inch, signing_y - 2.35 * inch, "Initials: ${i:2:n}")
+
+    c.showPage()
+    c.save()
+
+
+def _wrap_lines(text: str, max_chars: int):
+    """Naive word wrap for the agreement body. Sufficient for the static prose
+    shipped with the demo template; not a general purpose typesetter."""
+    if not text:
+        yield ""
+        return
+    words = text.split()
+    line = ""
+    for word in words:
+        candidate = (line + " " + word).strip()
+        if len(candidate) > max_chars and line:
+            yield line
+            line = word
+        else:
+            line = candidate
+    if line:
+        yield line
+
+
 def render_via_api(template_path: Path, payload: dict, output_pdf: Path) -> dict:
     with template_path.open("rb") as fh:
         template_b64 = base64.b64encode(fh.read()).decode("utf-8")
@@ -613,6 +765,21 @@ COMPLIANCE_PAYLOAD = {
     "approverTitle": "Chief Information Security Officer",
 }
 
+# Mirrors article3-writing-batch3.md Section 2 Step 2 documentValues exactly.
+# If you change a key here, also update the article's Python sample or the
+# rendered PDF will have empty fields where readers expect populated data.
+QUARTERLY_STATEMENT_PAYLOAD = {
+    "client_name": "Alex Rivera",
+    "account_number": "ACC-20241231-0042",
+    "statement_period": "Q4 2024",
+    "portfolio_value": "$248,750.00",
+    "holdings": [
+        {"symbol": "AAPL", "quantity": "50", "marketValue": "$9,100.00"},
+        {"symbol": "MSFT", "quantity": "30", "marketValue": "$12,360.00"},
+        {"symbol": "VTSAX", "quantity": "400", "marketValue": "$45,200.00"},
+    ],
+}
+
 
 def main() -> int:
     simple_docx = HERE / "invoice_simple.docx"
@@ -621,6 +788,8 @@ def main() -> int:
     contract_std_docx = HERE / "contract_standard.docx"
     contract_auto_docx = HERE / "contract_auto_renewal.docx"
     compliance_docx = HERE / "compliance_attestation.docx"
+    quarterly_docx = HERE / "quarterly_statement.docx"
+    account_agreement_pdf = HERE / "account_agreement.pdf"
 
     simple_pdf = HERE / "invoice_simple_test.pdf"
     table_pdf = HERE / "invoice_table_test.pdf"
@@ -628,6 +797,7 @@ def main() -> int:
     contract_std_pdf = HERE / "contract_standard_test.pdf"
     contract_auto_pdf = HERE / "contract_auto_renewal_test.pdf"
     compliance_pdf = HERE / "compliance_attestation_test.pdf"
+    quarterly_pdf = HERE / "quarterly_statement_test.pdf"
 
     print("Building templates...")
     build_invoice_simple(simple_docx)
@@ -636,8 +806,11 @@ def main() -> int:
     build_contract_standard(contract_std_docx)
     build_contract_auto_renewal(contract_auto_docx)
     build_compliance_attestation(compliance_docx)
+    build_quarterly_statement(quarterly_docx)
+    build_account_agreement_pdf(account_agreement_pdf)
     for f in (simple_docx, table_docx, full_docx,
-              contract_std_docx, contract_auto_docx, compliance_docx):
+              contract_std_docx, contract_auto_docx, compliance_docx,
+              quarterly_docx, account_agreement_pdf):
         print(f"  {f.name} ({f.stat().st_size:,} bytes)")
 
     print("\nRendering invoice_simple.docx via Foxit DocGen API...")
@@ -657,6 +830,18 @@ def main() -> int:
 
     print("\nRendering compliance_attestation.docx via Foxit DocGen API...")
     render_via_api(compliance_docx, COMPLIANCE_PAYLOAD, compliance_pdf)
+
+    print("\nRendering quarterly_statement.docx via Foxit DocGen API...")
+    render_via_api(quarterly_docx, QUARTERLY_STATEMENT_PAYLOAD, quarterly_pdf)
+
+    # account_agreement.pdf carries eSign Text Tag tokens, not DocGen tokens.
+    # It is consumed by the eSign /folders/createfolder endpoint, not DocGen,
+    # so we only need to confirm it is a valid PDF on disk.
+    with account_agreement_pdf.open("rb") as fh:
+        if not fh.read(5).startswith(b"%PDF-"):
+            raise RuntimeError("account_agreement.pdf is not a valid PDF")
+    print(f"\naccount_agreement.pdf ({account_agreement_pdf.stat().st_size:,} bytes) "
+          "validated as a PDF; eSign Text Tag tokens embedded as literal text.")
 
     print("\nAll templates rendered successfully.")
     return 0
