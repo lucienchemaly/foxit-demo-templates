@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Foxit eSign embedded signing test harness</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; }
+    .bar { padding: 12px 16px; background: #f4f4f5; border-bottom: 1px solid #ddd; display: flex; gap: 8px; align-items: center; }
+    .bar input { flex: 1; padding: 8px; font-size: 14px; }
+    .bar button { padding: 8px 16px; font-size: 14px; cursor: pointer; }
+    #signing-container { width: 100%; }
+  </style>
+</head>
+<body>
+  <!--
+    Paste the embeddedSessionURL returned by POST /api/folders/createfolder
+    (with createEmbeddedSigningSession: true) into the box below and click Load,
+    or hardcode it in the SESSION_URL constant and open this file directly.
+  -->
+  <div class="bar">
+    <input id="url" type="text" placeholder="Paste your embeddedSessionURL here" />
+    <button onclick="launchSigningSession(document.getElementById('url').value)">Load</button>
+  </div>
+  <div id="signing-container"></div>
+
+  <script>
+    // Optionally hardcode a session URL here instead of pasting it above.
+    const SESSION_URL = "";
+
+    function launchSigningSession(embeddedSessionURL) {
+      if (!embeddedSessionURL) {
+        alert("Paste an embeddedSessionURL first.");
+        return;
+      }
+      const container = document.getElementById("signing-container");
+      container.innerHTML = "";
+      const iframe = document.createElement("iframe");
+      // The five sandbox permissions below are the minimum the signing UI needs.
+      iframe.setAttribute(
+        "sandbox",
+        "allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation",
+      );
+      iframe.src = embeddedSessionURL;
+      iframe.style.width = "100%";
+      iframe.style.height = "780px";
+      iframe.style.border = "none";
+      iframe.onload = function () {
+        console.log("Signing session ready");
+      };
+      container.appendChild(iframe);
+    }
+
+    if (SESSION_URL) {
+      launchSigningSession(SESSION_URL);
+    }
+  </script>
+</body>
+</html>
