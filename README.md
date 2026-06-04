@@ -79,7 +79,7 @@ Every pattern below was confirmed against the live API (`na1.fusion.foxit.com`, 
 |---|---|---|
 | Scalar substitution | `{{ companyName }}` | Spaces inside braces are tolerated. |
 | Date formatting | `{{ invoiceDate \@ MM/dd/yyyy }}` | Standard Word date picture string. |
-| Currency formatting | `{{ totalDue \# "$#,##0.00" }}` | Use Word's MERGEFIELD picture string, not a friendly keyword. |
+| Currency formatting | `{{ totalDue \# "$#,##0.00" }}` | Use Word's MERGEFIELD picture string. It renders reliably no matter how the `.docx` is authored, unlike the bare `Currency` keyword (see below). |
 | Other locales / decimals | `{{ amount \# "€#,##0.00" }}`, `{{ count \# "0" }}` | Any valid Word numeric picture works. |
 | Repeating rows | `{{TableStart:items}} ... {{TableEnd:items}}` | Both delimiters must sit in cells of the same Word table row. |
 | Auto row number | `{{ROW_NUMBER}}` | Inside a loop only. |
@@ -87,9 +87,9 @@ Every pattern below was confirmed against the live API (`na1.fusion.foxit.com`, 
 
 ## Patterns that do NOT work
 
-These were tested and confirmed broken. Do not put them in templates:
+These were tested and confirmed broken in this repo's templates. Do not put them in templates:
 
-- `{{ totalDue \# Currency }}` — friendly keyword renders blank or as literal text. Use the picture string instead.
+- `{{ totalDue \# Currency }}` — the bare `Currency` keyword is unreliable. It renders blank in every template this repo generates programmatically with `python-docx` (`build_templates.py`), which is why the picture string is the standard here. It does render correctly in some Word-authored templates (Foxit's official `create_custom_invoice` demo uses `\# Currency` successfully), so the behavior depends on how the field is authored. The picture string `\# "$#,##0.00"` works in both cases, so prefer it for portability.
 - `{{=qty*unitPrice}}` — inline arithmetic between fields is not evaluated. Compute derived values in your application and send them as JSON fields (this is why the table template's payload includes a precomputed `lineTotal`).
 - `{{ field | Currency }}`, `{{ field:Currency }}` — pipe and colon syntaxes are unsupported.
 
