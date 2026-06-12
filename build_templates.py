@@ -619,6 +619,71 @@ def _wrap_lines(text: str, max_chars: int):
         yield line
 
 
+def build_remittance_confirmation(path: Path) -> None:
+    """Remittance advice confirming payment of an invoice. Companion to the
+    batch4 article5 agentic invoice pipeline (snake_case tokens, line_items loop)."""
+    doc = Document()
+
+    _styled_heading(doc, "REMITTANCE ADVICE", size=24)
+    doc.add_paragraph("Foxit DocGen API Sample Template")
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    p.add_run("Payer: ").bold = True
+    p.add_run("{{ payer_name }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Remittance ID: ").bold = True
+    p.add_run("{{ remittance_id }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Invoice Number: ").bold = True
+    p.add_run("{{ invoice_number }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Payment Date: ").bold = True
+    p.add_run("{{ payment_date }}")
+
+    p = doc.add_paragraph()
+    p.add_run("Payment Method: ").bold = True
+    p.add_run("{{ payment_method }}")
+
+    doc.add_paragraph()
+
+    # Items covered by this payment: header + loop row (TableStart/TableEnd in
+    # the same row) + footer with the amount paid.
+    table = doc.add_table(rows=3, cols=4)
+    table.style = "Light Grid Accent 1"
+    table.autofit = True
+
+    headers = ["#", "Description", "Qty", "Total"]
+    for idx, text in enumerate(headers):
+        cell = table.rows[0].cells[idx]
+        cell.text = ""
+        run = cell.paragraphs[0].add_run(text)
+        run.bold = True
+
+    loop_row = table.rows[1].cells
+    loop_row[0].text = "{{TableStart:line_items}}{{ROW_NUMBER}}"
+    loop_row[1].text = "{{description}}"
+    loop_row[2].text = "{{qty}}"
+    loop_row[3].text = '{{total \\# "$#,##0.00"}}{{TableEnd:line_items}}'
+
+    footer = table.rows[2].cells
+    footer[0].text = ""
+    footer[1].text = ""
+    footer[2].paragraphs[0].add_run("Amount Paid:").bold = True
+    footer[3].text = '{{ amount_paid \\# "$#,##0.00" }}'
+
+    doc.add_paragraph()
+    doc.add_paragraph(
+        "This document confirms payment of the invoice referenced above. "
+        "Please allow 2-3 business days for the transfer to settle."
+    )
+
+    doc.save(path)
+
+
 def render_via_api(template_path: Path, payload: dict, output_pdf: Path) -> dict:
     with template_path.open("rb") as fh:
         template_b64 = base64.b64encode(fh.read()).decode("utf-8")
@@ -781,6 +846,31 @@ QUARTERLY_STATEMENT_PAYLOAD = {
 }
 
 
+# Mirrors the validated invoice data from the batch4 article5 pipeline
+# (extracted from invoice_full_test.pdf). If you change a key here, also
+# update the article's Step 5 prose.
+REMITTANCE_PAYLOAD = {
+    "payer_name": "Acme Corporation",
+    "remittance_id": "REM-2025-0042",
+    "invoice_number": "INV-2025-0042",
+    "payment_date": "08/12/2025",
+    "payment_method": "ACH Transfer",
+    "line_items": [
+        {
+            "description": "API Integration Consulting",
+            "qty": 8,
+            "total": 1560.00,
+        },
+        {
+            "description": "Document Automation Setup",
+            "qty": 1,
+            "total": 750.00,
+        },
+    ],
+    "amount_paid": 2494.80,
+}
+
+
 def main() -> int:
     simple_docx = HERE / "invoice_simple.docx"
     table_docx = HERE / "invoice_table.docx"
@@ -789,6 +879,7 @@ def main() -> int:
     contract_auto_docx = HERE / "contract_auto_renewal.docx"
     compliance_docx = HERE / "compliance_attestation.docx"
     quarterly_docx = HERE / "quarterly_statement.docx"
+    remittance_docx = HERE / "remittance_confirmation.docx"
     account_agreement_pdf = HERE / "account_agreement.pdf"
 
     simple_pdf = HERE / "invoice_simple_test.pdf"
@@ -798,6 +889,7 @@ def main() -> int:
     contract_auto_pdf = HERE / "contract_auto_renewal_test.pdf"
     compliance_pdf = HERE / "compliance_attestation_test.pdf"
     quarterly_pdf = HERE / "quarterly_statement_test.pdf"
+    remittance_pdf = HERE / "remittance_confirmation_test.pdf"
 
     print("Building templates...")
     build_invoice_simple(simple_docx)
@@ -807,10 +899,11 @@ def main() -> int:
     build_contract_auto_renewal(contract_auto_docx)
     build_compliance_attestation(compliance_docx)
     build_quarterly_statement(quarterly_docx)
+    build_remittance_confirmation(remittance_docx)
     build_account_agreement_pdf(account_agreement_pdf)
     for f in (simple_docx, table_docx, full_docx,
               contract_std_docx, contract_auto_docx, compliance_docx,
-              quarterly_docx, account_agreement_pdf):
+              quarterly_docx, remittance_docx, account_agreement_pdf):
         print(f"  {f.name} ({f.stat().st_size:,} bytes)")
 
     print("\nRendering invoice_simple.docx via Foxit DocGen API...")
@@ -833,6 +926,9 @@ def main() -> int:
 
     print("\nRendering quarterly_statement.docx via Foxit DocGen API...")
     render_via_api(quarterly_docx, QUARTERLY_STATEMENT_PAYLOAD, quarterly_pdf)
+
+    print("\nRendering remittance_confirmation.docx via Foxit DocGen API...")
+    render_via_api(remittance_docx, REMITTANCE_PAYLOAD, remittance_pdf)
 
     # account_agreement.pdf carries eSign Text Tag tokens, not DocGen tokens.
     # It is consumed by the eSign /folders/createfolder endpoint, not DocGen,
