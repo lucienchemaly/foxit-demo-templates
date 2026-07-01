@@ -1,0 +1,96 @@
+{
+  "name": "Foxit Document Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "generate-doc"
+      },
+      "id": "Form_Trigger",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://github.com/lucienchemaly/foxit-demo-templates/raw/main/invoice_simple.docx"
+      },
+      "id": "Fetch_Word_Template",
+      "name": "Fetch Word Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items;"
+      },
+      "id": "Base64_Encode_Template",
+      "name": "Base64 Encode Template",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.fusion.foxit.com/document-generation/api/GenerateDocumentBase64",
+        "sendHeaders": true,
+        "sendBody": true
+      },
+      "id": "Generate_Document",
+      "name": "Generate Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Word Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Word Template": {
+      "main": [
+        [
+          {
+            "node": "Base64 Encode Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base64 Encode Template": {
+      "main": [
+        [
+          {
+            "node": "Generate Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

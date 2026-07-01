@@ -1,0 +1,125 @@
+{
+  "name": "Foxit PDF Structural Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.fusion.foxit.com/pdf-services/api/documents/upload",
+        "sendHeaders": true
+      },
+      "id": "Upload_PDF",
+      "name": "Upload PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.fusion.foxit.com/pdf-services/api/documents/pdf-structural-extract",
+        "sendHeaders": true,
+        "sendBody": true
+      },
+      "id": "Submit_Extraction",
+      "name": "Submit Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://na1.fusion.foxit.com/pdf-services/api/tasks/{{taskId}}",
+        "sendHeaders": true
+      },
+      "id": "Poll_Task",
+      "name": "Poll Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://na1.fusion.foxit.com/pdf-services/api/documents/{{resultDocumentId}}/download",
+        "sendHeaders": true
+      },
+      "id": "Download_ZIP",
+      "name": "Download ZIP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        840,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return items;"
+      },
+      "id": "Unpack_ZIP_+_Parse_JSON",
+      "name": "Unpack ZIP + Parse JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Upload PDF": {
+      "main": [
+        [
+          {
+            "node": "Submit Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Extraction": {
+      "main": [
+        [
+          {
+            "node": "Poll Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Task": {
+      "main": [
+        [
+          {
+            "node": "Download ZIP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download ZIP": {
+      "main": [
+        [
+          {
+            "node": "Unpack ZIP + Parse JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

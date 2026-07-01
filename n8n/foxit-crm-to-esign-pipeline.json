@@ -1,0 +1,101 @@
+{
+  "name": "CRM to eSign Document Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "crm-deal-closed",
+        "httpMethod": "POST"
+      },
+      "id": "CRM_Webhook",
+      "name": "CRM Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.fusion.foxit.com/document-generation/api/GenerateDocumentBase64",
+        "sendHeaders": true,
+        "sendBody": true
+      },
+      "id": "Generate_PDF",
+      "name": "Generate PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.foxitesign.foxit.com/api/oauth2/access_token",
+        "sendBody": true
+      },
+      "id": "eSign_Access_Token",
+      "name": "eSign Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://na1.foxitesign.foxit.com/api/folders/createfolder",
+        "sendHeaders": true,
+        "sendBody": true
+      },
+      "id": "Create_Signature_Folder",
+      "name": "Create Signature Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "CRM Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate PDF": {
+      "main": [
+        [
+          {
+            "node": "eSign Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "eSign Access Token": {
+      "main": [
+        [
+          {
+            "node": "Create Signature Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
