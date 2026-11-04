@@ -125,7 +125,7 @@ def d03():
     vols = ["40 a month", "100 a month", "250 a month", "2,000 a month"]
     fig = plt.figure(figsize=(16, 9))
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 16); ax.set_ylim(0, 9); ax.axis("off")
-    ax.text(0.5, 8.45, "Yearly cost at four monthly volumes", fontsize=24, weight="bold", color=INK)
+    ax.text(0.5, 8.45, "Yearly cost at 4 monthly volumes", fontsize=24, weight="bold", color=INK)
     ax.text(0.5, 8.0, "List prices in USD with annual billing where offered. Bars share one scale.", fontsize=14, color=MUTED)
     x0s = [3.9, 7.0, 10.1, 13.2]; pw = 2.75; vmax = 12500
     for c, v in enumerate(vols):
@@ -153,7 +153,7 @@ def d03():
             else:
                 box(ax, x0, y - 0.22, 1.9, 0.44, "white", GRAY, lw=1.2, r=0.08)
                 ax.text(x0 + 0.95, y, val, ha="center", va="center", fontsize=11, color=MUTED)
-    ax.text(0.5, 0.35, "* PandaDoc at 100 and 250 a month is our arithmetic using the $4 per extra document rate from PandaDoc's 10 Apr 2026 blog.",
+    ax.text(0.5, 0.35, "* PandaDoc at 100 and 250 a month is our arithmetic at $4 per extra document on API Developer.",
             fontsize=11, color=MUTED)
     ax.text(0.5, 0.0 + 0.05, "Grey outlined cells have no published price at that volume.", fontsize=11, color=MUTED)
     finish(fig, "diagram-cost-by-volume.png")
@@ -186,11 +186,10 @@ def d04():
     ax.text(11.3, 4.45, "About 833 a year on Startup, 2,500 on Business", fontsize=11, color=MUTED)
     box(ax, 11.05, 1.7, 4.45, 2.15, "white", INK, lw=1.4, r=0.08)
     ax.text(11.3, 3.45, "At zero credits", fontsize=13.5, weight="bold", color=INK)
-    ax.text(11.3, 3.0, "Credit-consuming calls return", fontsize=12, color=INK)
-    ax.text(11.3, 2.6, "HTTP 403", fontsize=12, color=INK, family="monospace", weight="bold")
-    ax.text(11.3, 2.2, '{"allow":false, ...}', fontsize=11.5, color=INK, family="monospace")
-    ax.text(11.3, 1.85, "until credits renew or you upgrade", fontsize=11, color=MUTED)
-    ax.text(0.5, 0.35, "Per-operation rates from our pricing page. The 403 response is from a live call on an exhausted account, 4 Nov 2026. Totals are our arithmetic.",
+    ax.text(11.3, 3.0, "Calls that need credits stop", fontsize=12, color=INK)
+    ax.text(11.3, 2.5, "HTTP 403", fontsize=12, color=INK, family="monospace", weight="bold")
+    ax.text(11.3, 2.0, "until credits renew or you upgrade", fontsize=11, color=MUTED)
+    ax.text(0.5, 0.35, "Per-operation rates from our pricing page. HTTP 403 is the status a live call returned on an empty pool. Totals are our arithmetic.",
             fontsize=11, color=MUTED)
     finish(fig, "diagram-foxit-credit-pool.png")
 
@@ -205,8 +204,8 @@ def d05():
         ("DocuSign", "Keeps sending", "API-plan overage rate not published; the contract sets the cost", BLUE),
         ("Dropbox Sign", "Keeps sending", "Automatic upgrade to the next tier, which stays in place (alert at 80%)", BLUE),
         ("Adobe Acrobat Sign", "Keeps sending", "Over-use settled by contract", BLUE),
-        ("PandaDoc", "Depends on plan", "API Developer: $4 per extra document (blog, 10 Apr 2026). Starter and Business: API creation pauses", GRAY),
-        ("Foxit eSign API", "Stops", 'Credit-consuming calls return HTTP 403 with "allow": false until renewal or upgrade', ORANGE),
+        ("PandaDoc", "Depends on plan", "API Developer: $4 per extra document. Starter and Business: API creation pauses", GRAY),
+        ("Foxit eSign API", "Stops", 'Calls that need credits stop (HTTP 403) until renewal or upgrade', ORANGE),
     ]
     for i, (name, outcome, detail, col) in enumerate(rows):
         y = 5.3 - i * 1.0
