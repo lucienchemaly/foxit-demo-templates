@@ -65,7 +65,7 @@ def d01():
         ax.scatter([bx], [y], s=420, color=col, zorder=3)
         ax.text(bx, y, "$", ha="center", va="center", color="white", fontsize=13, weight="bold", zorder=4)
         ax.text(bx + 0.35, y - 0.33, note, fontsize=10.5, color=MUTED, va="center", bbox=dict(fc="white", ec="none", pad=1.5, alpha=0.85))
-    ax.text(0.5, 0.2, "Unsigned, declined, and abandoned requests still count. Vendor terms checked 27 Oct 2026.",
+    ax.text(0.5, 0.2, "Unsigned, declined, and abandoned requests still count. Vendor terms checked 5 Nov 2026.",
             fontsize=11, color=MUTED)
     finish(fig, "diagram-billing-moment.png")
 
@@ -119,7 +119,7 @@ def d03():
         ("Dropbox Sign, hosted", [900, 1500, 3300, "Contact sales"]),
         ("Dropbox Sign, embedded", [3000, 3000, 5400, "Contact sales"]),
         ("Adobe Acrobat Sign", ["Quote", "Quote", "Quote", "Quote"]),
-        ("PandaDoc", [480, ("est", 3360), ("est", 10560), "Confirm price"]),
+        ("PandaDoc", [480, "Not published", "Not published", "Quote"]),
         ("Foxit eSign API", [1750, 4500, 4500, "Quote"]),
     ]
     vols = ["40 a month", "100 a month", "250 a month", "2,000 a month"]
@@ -153,8 +153,6 @@ def d03():
             else:
                 box(ax, x0, y - 0.22, 1.9, 0.44, "white", GRAY, lw=1.2, r=0.08)
                 ax.text(x0 + 0.95, y, val, ha="center", va="center", fontsize=11, color=MUTED)
-    ax.text(0.5, 0.35, "* PandaDoc at 100 and 250 a month is our arithmetic at $4 per extra document on API Developer.",
-            fontsize=11, color=MUTED)
     ax.text(0.5, 0.0 + 0.05, "Grey outlined cells have no published price at that volume.", fontsize=11, color=MUTED)
     finish(fig, "diagram-cost-by-volume.png")
 
@@ -204,7 +202,7 @@ def d05():
         ("DocuSign", "Keeps sending", "API-plan overage rate not published; the contract sets the cost", BLUE),
         ("Dropbox Sign", "Keeps sending", "Automatic upgrade to the next tier, which stays in place (alert at 80%)", BLUE),
         ("Adobe Acrobat Sign", "Keeps sending", "Over-use settled by contract", BLUE),
-        ("PandaDoc", "Depends on plan", "API Developer: $4 per extra document. Starter and Business: API creation pauses", GRAY),
+        ("PandaDoc", "Depends on plan", "API Developer: overage rate not published. Starter and Business: API creation pauses", GRAY),
         ("Foxit eSign API", "Stops", 'Calls that need credits stop (HTTP 403) until renewal or upgrade', ORANGE),
     ]
     for i, (name, outcome, detail, col) in enumerate(rows):
@@ -214,7 +212,7 @@ def d05():
         ax.text(5.0, y + 0.33, outcome, ha="center", va="center", fontsize=13, weight="bold", color="white")
         ax.add_patch(FancyArrowPatch((6.4, y + 0.33), (7.1, y + 0.33), arrowstyle="-|>", mutation_scale=16, color=MUTED, lw=1.5))
         ax.text(7.25, y + 0.33, detail, va="center", fontsize=12, color=INK)
-    ax.text(0.5, 0.35, "Vendor terms checked 27 Oct 2026. Foxit response from a live call on an exhausted account, 4 Nov 2026.",
+    ax.text(0.5, 0.35, "Vendor terms checked 5 Nov 2026. Foxit response from a live call on an exhausted account, 4 Nov 2026.",
             fontsize=11, color=MUTED)
     finish(fig, "diagram-cap-behavior.png")
 
