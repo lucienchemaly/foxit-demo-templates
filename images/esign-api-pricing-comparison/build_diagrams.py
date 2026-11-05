@@ -187,9 +187,9 @@ def d04():
     box(ax, 11.05, 1.7, 4.45, 2.15, "white", INK, lw=1.4, r=0.08)
     ax.text(11.3, 3.45, "At zero credits", fontsize=13.5, weight="bold", color=INK)
     ax.text(11.3, 3.0, "Calls that need credits stop", fontsize=12, color=INK)
-    ax.text(11.3, 2.5, "HTTP 403", fontsize=12, color=INK, family="monospace", weight="bold")
-    ax.text(11.3, 2.0, "until credits renew or you upgrade", fontsize=11, color=MUTED)
-    ax.text(0.5, 0.35, "Per-operation rates from our pricing page. HTTP 403 is the status a live call returned on an empty pool. Totals are our arithmetic.",
+    ax.text(11.3, 2.55, "until credits renew or you upgrade", fontsize=11.5, color=INK)
+    ax.text(11.3, 2.05, "No overage charge", fontsize=12, color=INK, weight="bold")
+    ax.text(0.5, 0.35, "Per-operation rates from our pricing page. Totals are our arithmetic.",
             fontsize=11, color=MUTED)
     finish(fig, "diagram-foxit-credit-pool.png")
 
