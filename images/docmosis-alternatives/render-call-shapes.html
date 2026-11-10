@@ -1,0 +1,52 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+.lane{display:grid;grid-template-columns:250px 1fr 230px;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid #e5e7eb}
+.name{font-size:19px;font-weight:700;line-height:1.25}
+.name small{display:block;font-size:14px;font-weight:400;color:#5a6172;margin-top:4px}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:nowrap}
+.step{border:2px solid #cbd2dc;background:#f7f8fa;border-radius:8px;padding:9px 12px;font-size:15.5px;line-height:1.35;flex:1 1 0;min-width:0}
+.step b{font-weight:700}
+.arr{font-size:22px;color:#9aa3b2;flex:0 0 auto}
+.fx .step{border-color:#e8700f;background:#fff6ee}
+.tags{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+</style></head><body>
+<h1>What one render request looks like on each option</h1>
+<div class="sub">Where the template lives, how many calls a document takes, and whether the file comes back in the same response</div>
+
+<div class="lane"><div class="name">Docmosis Cloud<small>DWS4 (the baseline)</small></div>
+<div class="flow"><div class="step">Regional base URL (<code>us1</code>, <code>eu1</code>, <code>au1</code>) + <code>accessKey</code></div><div class="arr">&rarr;</div>
+<div class="step"><b>render</b> with <code>templateName</code> (stored in Docmosis Cloud) + <code>data</code> (JSON or XML)</div><div class="arr">&rarr;</div>
+<div class="step"><code>storeTo</code> stream, mailto or s3</div></div>
+<div class="tags"><span class="tag store">Stored template</span><span class="tag sync">One call</span></div></div>
+
+<div class="lane fx"><div class="name">Foxit Document Generation API</div>
+<div class="flow"><div class="step"><code>client_id</code> + <code>client_secret</code> request headers</div><div class="arr">&rarr;</div>
+<div class="step"><b>One call</b> carrying the DOCX template + <code>documentValues</code> (JSON)</div><div class="arr">&rarr;</div>
+<div class="step">PDF or DOCX back <b>in the same response</b></div></div>
+<div class="tags"><span class="tag inline">Template sent each call</span><span class="tag sync">Synchronous</span></div></div>
+
+<div class="lane"><div class="name">Carbone, DocuGenerate</div>
+<div class="flow"><div class="step"><b>Upload the template once</b> and keep its ID</div><div class="arr">&rarr;</div>
+<div class="step"><b>Render by template ID</b> with JSON data (Carbone also accepts the template inline)</div><div class="arr">&rarr;</div>
+<div class="step">Generated file (Carbone: long renders move to a webhook)</div></div>
+<div class="tags"><span class="tag store">Stored template</span><span class="tag sync">One render call</span></div></div>
+
+<div class="lane"><div class="name">Adobe Document Generation API</div>
+<div class="flow"><div class="step"><b>Upload</b> the template as an asset</div><div class="arr">&rarr;</div>
+<div class="step"><b>Start</b> the generation job</div><div class="arr">&rarr;</div>
+<div class="step"><b>Poll</b> or receive a webhook</div><div class="arr">&rarr;</div>
+<div class="step"><b>Download</b> the result (kept 24 hours by default)</div></div>
+<div class="tags"><span class="tag inline">Asset per job</span><span class="tag async">Asynchronous</span></div></div>
+
+<div class="lane"><div class="name">DocsAutomator</div>
+<div class="flow"><div class="step">Template linked to an <b>automation</b> (Google Docs, Word or PDF)</div><div class="arr">&rarr;</div>
+<div class="step"><code>createDocument</code> with the <code>automationId</code> + data</div><div class="arr">&rarr;</div>
+<div class="step">A <b>PDF URL</b> (sync), or an async job you poll</div></div>
+<div class="tags"><span class="tag store">Template in automation</span><span class="tag sync">Sync or async</span></div></div>
+
+<div class="lane" style="border-bottom:none"><div class="name">docxtemplater, Apryse Fluent<small>no third-party API call</small></div>
+<div class="flow"><div class="step"><b>docxtemplater:</b> library in your Node.js app or browser renders the Office file; your converter (such as headless LibreOffice) makes the PDF</div><div class="arr" style="visibility:hidden">&rarr;</div>
+<div class="step"><b>Apryse Fluent:</b> Java or .NET engine on your servers pulls data from JSON, XML or SQL databases at render time</div></div>
+<div class="tags"><span class="tag own">Your servers</span><span class="tag sync">In process</span></div></div>
+
+<div class="note">Moving from Docmosis means changing more than tags. A stored-template service keeps your <code>templateName</code> habit, an inline-template service needs the DOCX on every request, and an asynchronous service adds a job, a poll or webhook, and a download to your code.</div>
+</body></html>

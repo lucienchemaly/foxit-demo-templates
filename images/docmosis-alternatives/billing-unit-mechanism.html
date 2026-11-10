@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+.top{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:start}
+.doc{border:2px solid #1f2430;border-radius:10px;padding:18px;text-align:center}
+.pages{display:grid;grid-template-columns:repeat(4,46px);gap:8px;justify-content:center;margin:12px 0}
+.pg{height:60px;border:2px solid #9aa3b2;border-radius:4px;background:#f4f5f7;font-size:14px;font-weight:700;color:#5a6172;display:flex;align-items:center;justify-content:center}
+.doc .t{font-size:20px;font-weight:700}.doc .s{font-size:15px;color:#5a6172}
+.rows{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:270px 210px 1fr;gap:16px;align-items:center;border:2px solid #cbd2dc;border-radius:8px;padding:12px 16px;background:#f7f8fa}
+.row .v{font-size:26px;font-weight:800}
+.row .u{font-size:15px;color:#5a6172;font-weight:600}
+.row .n{font-size:16px;font-weight:700}
+.row .d{font-size:15px;line-height:1.4;color:#3a4152}
+.pg8{border-color:#b91c1c;background:#fdf0f0}.pg8 .v{color:#b91c1c}
+.fx{border-color:#e8700f;background:#fff6ee}.fx .v{color:#c2570a}
+.wk{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+.w{border-radius:10px;padding:16px 18px;background:#eef4fb;border:2px solid #2563a8}
+.w h3{font-size:19px;margin-bottom:8px}
+.w p{font-size:16px;line-height:1.45}
+</style></head><body>
+<h1>How one 8-page document is metered</h1>
+<div class="sub">The same generated file counts as 8 units on a per-page plan and 1 unit almost everywhere else</div>
+<div class="top">
+<div class="doc"><div class="t">1 generated statement</div><div class="pages"><div class="pg">1</div><div class="pg">2</div><div class="pg">3</div><div class="pg">4</div><div class="pg">5</div><div class="pg">6</div><div class="pg">7</div><div class="pg">8</div></div><div class="s">Every page counts on Docmosis, even when a 4-page template expands to 8</div></div>
+<div class="rows">
+<div class="row pg8"><div class="n">Docmosis Cloud</div><div><span class="v">8</span> <span class="u">pages</span></div><div class="d">Every page of every successful render counts toward the monthly page quota</div></div>
+<div class="row fx"><div class="n">Foxit Document Generation API</div><div><span class="v">1</span> <span class="u">credit</span></div><div class="d">Per successful generation, whatever the page count; failed calls use none</div></div>
+<div class="row"><div class="n">Carbone</div><div><span class="v">1</span> <span class="u">document</span></div><div class="d">Counts as more than 1 when the injected JSON and images exceed 1 MB</div></div>
+<div class="row"><div class="n">DocuGenerate</div><div><span class="v">1</span> <span class="u">document</span></div><div class="d">Batch runs count 1 document per data item</div></div>
+<div class="row"><div class="n">DocsAutomator</div><div><span class="v">1</span> <span class="u">document</span></div><div class="d">A document that is then e-signed still counts once</div></div>
+<div class="row"><div class="n">Adobe Document Generation API</div><div><span class="v">1</span> <span class="u">Document Transaction</span></div><div class="d">Covers a generated document of up to 50 pages</div></div>
+</div></div>
+<div class="wk">
+<div class="w"><h3>Workload A: 1,000 two-page contracts a month</h3><p>2,000 pages on Docmosis against 1,000 units elsewhere. Short documents keep page billing cheap, so Docmosis's 4,000-page tier stays competitive.</p></div>
+<div class="w"><h3>Workload B: 10,000 eight-page statements a month</h3><p>80,000 pages on Docmosis against 10,000 units elsewhere. Every extra page multiplies the page count, so per-document billing pulls ahead.</p></div>
+</div>
+<div class="note">Same file, different meter. Compare plans by converting your own mix (pages per document and documents a month) into each vendor's unit before comparing prices.</div>
+</body></html>

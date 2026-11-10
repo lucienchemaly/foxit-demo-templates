@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css"><style>
+.pool{border:3px solid #e8700f;border-radius:14px;padding:20px 22px 22px;background:#fffaf5}
+.pool .pt{font-size:20px;font-weight:700;color:#c2570a;margin-bottom:16px}
+.flow{display:flex;align-items:stretch;gap:12px}
+.st{flex:1;border:2px solid #e8700f;background:#fff;border-radius:10px;padding:14px 16px}
+.st.in{border-color:#9aa3b2;background:#f4f5f7}
+.st h3{font-size:19px;margin-bottom:6px}
+.st p{font-size:15.5px;line-height:1.42;color:#3a4152}
+.cr{display:inline-block;margin-top:10px;font-size:15px;font-weight:800;color:#fff;background:#e8700f;border-radius:20px;padding:4px 12px}
+.arr{align-self:center;font-size:26px;color:#c2570a}
+.cmp{margin-top:22px;border:2px dashed #9aa3b2;border-radius:14px;padding:18px 22px}
+.cmp .pt{font-size:18px;font-weight:700;color:#4b5563;margin-bottom:12px}
+.cmp .flow .st{border-color:#9aa3b2}
+.bill{display:inline-block;margin-top:10px;font-size:14px;font-weight:800;color:#fff;background:#4b5563;border-radius:20px;padding:4px 12px}
+</style></head><body>
+<h1>One account, one credit pool, from template to signature</h1>
+<div class="sub">A contract pipeline on the Foxit Document Generation, PDF Services and eSign APIs</div>
+<div class="pool"><div class="pt">One Foxit developer account &middot; one annual credit pool</div>
+<div class="flow">
+<div class="st in"><h3>Word template + JSON</h3><p>A DOCX with <code>{{field}}</code> tags, plus eSign text tags marking where each party signs</p></div><div class="arr">&rarr;</div>
+<div class="st"><h3>Document Generation API</h3><p>Merges the data and returns the PDF in the same response</p><span class="cr">1 credit</span></div><div class="arr">&rarr;</div>
+<div class="st"><h3>PDF Services API</h3><p>Merge, compress, watermark or protect the generated file</p><span class="cr">1 credit per operation</span></div><div class="arr">&rarr;</div>
+<div class="st"><h3>eSign API</h3><p>Sends the envelope, with signature fields placed from the text tags in the template</p><span class="cr">5 credits per envelope</span></div>
+</div></div>
+<div class="cmp"><div class="pt">The same pipeline starting from Docmosis Cloud</div>
+<div class="flow">
+<div class="st"><h3>Docmosis Cloud render</h3><p>Stored template + data; watermark and password set as render parameters</p><span class="bill">Docmosis page quota</span></div><div class="arr" style="color:#9aa3b2">&rarr;</div>
+<div class="st"><h3>Separate e-signature service</h3><p>A second account, a second integration, and its own bill</p><span class="bill">Second vendor's bill</span></div>
+</div></div>
+<div class="note">Example from the rates above: generating a contract, compressing it once and sending it for signature uses 7 credits (1 + 1 + 5) from the same pool. Credits reset yearly and failed calls use none.</div>
+</body></html>
