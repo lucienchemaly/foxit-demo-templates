@@ -19,7 +19,7 @@
 <div class="tags"><span class="tag store">Stored template</span><span class="tag sync">One call</span></div></div>
 
 <div class="lane fx"><div class="name">Foxit Document Generation API</div>
-<div class="flow"><div class="step"><code>client_id</code> + <code>client_secret</code> request headers</div><div class="arr">&rarr;</div>
+<div class="flow"><div class="step">Bearer token from <code>/oauth/token</code> (OAuth 2.0 client credentials)</div><div class="arr">&rarr;</div>
 <div class="step"><b>One call</b> carrying the DOCX template + <code>documentValues</code> (JSON)</div><div class="arr">&rarr;</div>
 <div class="step">PDF or DOCX back <b>in the same response</b></div></div>
 <div class="tags"><span class="tag inline">Template sent each call</span><span class="tag sync">Synchronous</span></div></div>
