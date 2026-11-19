@@ -75,12 +75,12 @@ ax.text(0.02, 0.94, 'What pdftotext returns after 3 kinds of "redaction"',
 lanes = [
     ('Annotation overlay', RED, LRED,
      ['/Annots: black Square rect', 'drawn on top at display time'],
-     ['BT 72 692 Tm', '[(Patient: John Smith)] TJ ET', 'BT 72 662 Tm',
+     ['BT 72 692 TD', '[(Patient: John Smith)] TJ ET', 'BT 72 662 TD',
       '[(SSN: 123-45-6789)] TJ', 'ET'],
      None, 'Patient: John Smith\nSSN: 123-45-6789', 'Fails: the SSN is still in the file'),
     ('True redaction', GREEN, LGREEN,
      ['Glyphs inside the target rect', 'removed, stream rebuilt'],
-     ['BT 72 692 Tm', '[(Patient: John Smith)] TJ ET', 'BT 72 662 Tm',
+     ['BT 72 692 TD', '[(Patient: John Smith)] TJ ET', 'BT 72 662 TD',
       '[(SSN: )] TJ', 'ET'],
      3, 'Patient: John Smith\nSSN:', 'Passes: the SSN bytes are gone'),
     ('Page rasterization', BLUE, LIGHTBLUE,
@@ -153,7 +153,7 @@ rows = [
     ('Azure Language Document PII', ['Y', 'Y', 'Y', 'Y', '', '']),
     ('Cloudmersive DLP API', ['Y', 'Y', 'Y', 'r', '', '']),
     ('Presidio (detection)', ['', 'Y', '', '', '', '']),
-    ('PyMuPDF (removal)', ['Y', '', 'Y', 'Y', '', '']),
+    ('PyMuPDF (removal)', ['Y', '', '', 'Y', '', '']),
     ('iText pdfSweep', ['Y', 'regex', 'Y', 'Y', '', '']),
 ]
 fig, ax = canvas(13, 6.6)
