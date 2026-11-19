@@ -4,7 +4,8 @@ Run: python3 build_diagrams.py  (writes PNGs next to this file)
 The Foxit call sequence in diagram 1 comes from a live PDF Services run on 2026-11-19
 (MEDIUM, a-midsummer-nights-dream.pdf, 572,679 -> 535,533 bytes).
 Diagram 2 uses a self-signed test PDF and a local qpdf full rewrite, validated with pyHanko
-(intact True before, intact False after).
+(intact True before, intact False after). Files and log: foxit/november/article9/_verify/sigtest,
+signature_rewrite_2026-11-19.log (53,547 -> 48,312 bytes).
 """
 import os
 import matplotlib
@@ -105,7 +106,7 @@ def filebar(ax, y, segs, label):
 
 # signed original
 filebar(ax, 0.72, [
-    (0.22, 0.30, 'Hashed bytes 0 to 48,700\npages, fonts, images, xref', LGREEN, GREEN),
+    (0.22, 0.30, 'Hashed bytes 0 to 48,700\npages, fonts, content streams', LGREEN, GREEN),
     (0.52, 0.13, 'Signature hole\n/Contents <PKCS#7>', '#ffffff', T2),
     (0.65, 0.33, 'Hashed bytes 53,016 to 53,547\ntrailer, final xref', LGREEN, GREEN),
 ], 'Signed (53,547 bytes)')
